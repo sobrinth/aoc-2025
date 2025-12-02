@@ -8,24 +8,37 @@ pub fn generate(input: &str) -> Vec<(i64, i64)> {
         .collect_vec()
 }
 pub fn part_1(input: &Vec<(i64, i64)>) -> i64 {
-    input
-        .iter()
-        .fold(0, |mut acc, (start, end)| {
-            for i in *start..=*end {
-                if i.to_string().len() % 2 == 0 {
-                    let i_str = i.to_string();
-                    let (l, r) = i_str.split_at(i_str.len() / 2);
-                    if l == r {
-                        acc += i
-                    }
+    input.iter().fold(0, |mut acc, (start, end)| {
+        for i in *start..=*end {
+            if i.to_string().len() % 2 == 0 {
+                let i_str = i.to_string();
+                let (l, r) = i_str.split_at(i_str.len() / 2);
+                if l == r {
+                    acc += i
                 }
             }
-            acc
-        })
+        }
+        acc
+    })
 }
 
 pub fn part_2(input: &Vec<(i64, i64)>) -> i64 {
-    todo!()
+    input.iter().fold(0, |mut acc, (start, end)| {
+        for i in *start..=*end {
+            let i_str = i.to_string();
+            for j in 1..=i_str.len() / 2 {
+                if !i_str.len().is_multiple_of(j) {
+                    continue;
+                }
+                let pattern = &i_str[..j];
+                if i_str == pattern.repeat(i_str.len() / j) {
+                    acc += i;
+                    break;
+                }
+            }
+        }
+        acc
+    })
 }
 
 #[cfg(test)]
@@ -45,5 +58,4 @@ mod tests {
 
         assert_eq!(part_2(&generate(s)), 4174379265);
     }
-
 }
