@@ -1,6 +1,7 @@
 use crate::day04::Warehouse::{Empty, PaperRoll};
 use crate::shared::Grid;
 use itertools::Itertools;
+use std::collections::HashMap;
 
 pub fn part_1(input: &Grid<Warehouse>) -> i32 {
     let mut count = 0;
@@ -9,7 +10,7 @@ pub fn part_1(input: &Grid<Warehouse>) -> i32 {
             if input[(x, y)] == Empty {
                 continue;
             }
-            if input.count_neighbours_eight(x, y, PaperRoll) < 4 {
+            if input.count_all_neighbours(x, y, PaperRoll) < 4 {
                 count += 1;
             }
         }
@@ -17,8 +18,53 @@ pub fn part_1(input: &Grid<Warehouse>) -> i32 {
     count
 }
 
-pub fn part_2(input: &str) -> i32 {
-    todo!()
+pub fn part_2(input: &Grid<Warehouse>) -> i32 {
+    let mut count = 0;
+    let mut state: HashMap<(isize, isize), usize> = HashMap::new();
+
+    for x in 0..input.width {
+        for y in 0..input.height {
+            if input[(x, y)] == Empty {
+                continue;
+            }
+            state.insert((x, y), input.count_all_neighbours(x, y, PaperRoll));
+        }
+    }
+
+    let mut yeet = vec![];
+    let mut done = false;
+    while !done {
+        state.retain(|i, n_count| {
+            if *n_count < 4 {
+                yeet.push(*i);
+                count += 1;
+                false
+            } else {
+                true
+            }
+        });
+        done = yeet.is_empty();
+
+        for i in yeet.drain(..) {
+            decrement(&mut state, i);
+        }
+    }
+
+    count
+}
+
+fn decrement(state: &mut HashMap<(isize, isize), usize>, pos: (isize, isize)) {
+    for dx in [-1, 0, 1].iter() {
+        for dy in [-1, 0, 1].iter() {
+            if *dx == 0 && *dy == 0 {
+                continue;
+            }
+            let possible_neighbour = (pos.0 + dx, pos.1 + dy);
+            if let Some(n) = state.get_mut(&possible_neighbour) {
+                *n -= 1;
+            }
+        }
+    }
 }
 
 pub fn parse(input: &str) -> Grid<Warehouse> {
@@ -80,6 +126,6 @@ mod tests {
 .@@@@@@@@.
 @.@.@@@.@.";
 
-        assert_eq!(part_2(s), 1111111);
+        assert_eq!(part_2(&parse(s)), 43);
     }
 }
