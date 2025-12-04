@@ -1,9 +1,20 @@
-﻿use crate::shared::Grid;
+use crate::day04::Warehouse::{Empty, PaperRoll};
+use crate::shared::Grid;
 use itertools::Itertools;
 
 pub fn part_1(input: &Grid<Warehouse>) -> i32 {
-    print!("{:?}", input);
-    todo!()
+    let mut count = 0;
+    for x in 0..input.width {
+        for y in 0..input.height {
+            if input[(x, y)] == Empty {
+                continue;
+            }
+            if input.count_neighbours_eight(x, y, PaperRoll) < 4 {
+                count += 1;
+            }
+        }
+    }
+    count
 }
 
 pub fn part_2(input: &str) -> i32 {
@@ -16,8 +27,8 @@ pub fn parse(input: &str) -> Grid<Warehouse> {
         let mut mapped_line = l
             .chars()
             .map(|c| match c {
-                '@' => Warehouse::PaperRoll,
-                '.' => Warehouse::Empty,
+                '@' => PaperRoll,
+                '.' => Empty,
                 _ => panic!("Invalid warehouse character: {}", c),
             })
             .collect_vec();
