@@ -11,5 +11,5 @@ aoc_main::main! {
     day02: generate => part_1, part_2;
     day03 => part_1, part_2;
     day04:  parse => part_1, part_2;
-    day05: parse => part_1;
+    day05: parse => part_1, part_2;
 }

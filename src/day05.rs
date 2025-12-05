@@ -1,4 +1,5 @@
-﻿use itertools::Itertools;
+﻿use std::ops::RangeInclusive;
+use itertools::Itertools;
 
 pub fn part_1(input: &(Vec<std::ops::RangeInclusive<u64>>, Vec<u64>)) -> i32 {
     input.1.iter().fold(0, |acc, &i| {
@@ -11,8 +12,20 @@ pub fn part_1(input: &(Vec<std::ops::RangeInclusive<u64>>, Vec<u64>)) -> i32 {
     })
 }
 
-pub fn part_2(input: &str) -> i32 {
-    0
+pub fn part_2(input: &(Vec<RangeInclusive<u64>>, Vec<u64>)) -> u64 {
+    let mut ranges = input.0.clone();
+    ranges.sort_by(|a, b| a.start().cmp(b.start()));
+
+    let res = ranges.iter().fold((0u64, 0), |(mut v, mut cur), r| {
+        for ingredient in r.clone() {
+            if ingredient > cur {
+                v += 1;
+                cur = ingredient;
+            }
+        }
+        (v, cur)
+    });
+    res.0
 }
 
 pub fn parse(input: &str) -> (Vec<std::ops::RangeInclusive<u64>>, Vec<u64>) {
@@ -68,6 +81,6 @@ mod tests {
 32
 ";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(&parse(s)), 14);
     }
 }
