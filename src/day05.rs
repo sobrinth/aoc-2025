@@ -1,9 +1,10 @@
 use itertools::Itertools;
 use std::ops::RangeInclusive;
 
-pub fn part_1(input: &(Vec<std::ops::RangeInclusive<u64>>, Vec<u64>)) -> i32 {
-    input.1.iter().fold(0, |acc, &i| {
-        for r in &input.0 {
+pub fn part_1(input: &str) -> i32 {
+    let (r, i) = parse(input);
+    i.iter().fold(0, |acc, &i| {
+        for r in &r {
             if r.contains(&i) {
                 return acc + 1;
             }
@@ -28,8 +29,8 @@ pub fn part_2_brute(input: &(Vec<RangeInclusive<u64>>, Vec<u64>)) -> u64 {
     res.0
 }
 
-pub fn part_2_optimized(input: &(Vec<RangeInclusive<u64>>, Vec<u64>)) -> u64 {
-    let mut ranges = input.0.clone();
+pub fn part_2_optimized(input: &str) -> u64 {
+    let (mut ranges, _) = parse(input);
     ranges.sort_by(|a, b| a.start().cmp(b.start()));
 
     ranges
@@ -50,7 +51,7 @@ pub fn part_2_optimized(input: &(Vec<RangeInclusive<u64>>, Vec<u64>)) -> u64 {
         .0
 }
 
-pub fn parse(input: &str) -> (Vec<std::ops::RangeInclusive<u64>>, Vec<u64>) {
+fn parse(input: &str) -> (Vec<RangeInclusive<u64>>, Vec<u64>) {
     let (fresh_ranges, ingredients) = input.split_once("\n\n").unwrap();
     (
         fresh_ranges
@@ -83,7 +84,7 @@ mod tests {
 32
 ";
 
-        assert_eq!(part_1(&parse(s)), 3);
+        assert_eq!(part_1(s), 3);
     }
     #[test]
     fn test_part_2() {
@@ -100,6 +101,6 @@ mod tests {
 32
 ";
 
-        assert_eq!(part_2_optimized(&parse(s)), 14);
+        assert_eq!(part_2_optimized(s), 14);
     }
 }
