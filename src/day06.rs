@@ -5,23 +5,21 @@ pub fn part_1(input: &str) -> u64 {
         .lines()
         .map(|r| r.split_ascii_whitespace().collect_vec())
         .collect_vec();
-    let row_len = rows[0].len();
 
     let mut count = 0;
-    for i in 0..row_len {
-        match rows[4][i] {
-            "+" => {
-                count += rows[0][i].parse::<u64>().unwrap()
-                    + rows[1][i].parse::<u64>().unwrap()
-                    + rows[2][i].parse::<u64>().unwrap()
-                    + rows[3][i].parse::<u64>().unwrap();
+    for i in 0..rows[0].len() {
+        let mut nums = vec![];
+        let mut op = "";
+        for row in &rows {
+            if row[i] == "+" || row[i] == "*" {
+                op = row[i];
+            } else if let Some(n) = row[i].parse::<u64>().ok() {
+                nums.push(n);
             }
-            "*" => {
-                count += rows[0][i].parse::<u64>().unwrap()
-                    * rows[1][i].parse::<u64>().unwrap()
-                    * rows[2][i].parse::<u64>().unwrap()
-                    * rows[3][i].parse::<u64>().unwrap();
-            }
+        }
+        match op {
+            "+" => count += nums.iter().sum::<u64>(),
+            "*" => count += nums.iter().product::<u64>(),
             _ => panic!("Invalid row op"),
         }
     }
