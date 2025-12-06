@@ -5,6 +5,7 @@ mod day03;
 mod day04;
 mod day05;
 mod shared;
+mod day06;
 
 aoc_main::main! {
     year 2025;
@@ -13,4 +14,5 @@ aoc_main::main! {
     day03 => part_1, part_2;
     day04:  parse => part_1, part_2;
     day05 => part_1, part_2_optimized;
+    day06 => part_1;
 }
