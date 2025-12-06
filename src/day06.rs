@@ -29,8 +29,33 @@ pub fn part_1(input: &str) -> u64 {
     count
 }
 
-pub fn part_2(input: &str) -> i32 {
-    0
+pub fn part_2(input: &str) -> u64 {
+    let mut cols = vec![];
+    let mut count = 0;
+
+    /*
+    Note for me: because I'll forget what I did here in approx 10 mins.
+    Treat the input as a grid of numbers.
+    Iterate over the input line by line and store the "number" in the column in the vector at idx = col-nr
+    The operator is always in the 'first' column of a new calculation -> take until the first column that is 0 again
+     */
+    for l in input.lines() {
+        for (idx, c) in l.chars().enumerate() {
+            if cols.len() == idx {
+                cols.push(0);
+            }
+            if let Some(n) = c.to_digit(10) {
+                cols[idx] *= 10; // the new digit will be added as the least-significant, so move everything up one
+                cols[idx] += n as u64;
+            } else if c == '+' {
+                count += cols[idx..].iter().take_while(|&&x| x != 0).sum::<u64>();
+            } else if c == '*' {
+                count += cols[idx..].iter().take_while(|&&x| x != 0).product::<u64>();
+            }
+        }
+    }
+
+    count
 }
 
 #[cfg(test)]
@@ -55,6 +80,6 @@ mod tests {
 *   +   *   +
 ";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(s), 3263827);
     }
 }
