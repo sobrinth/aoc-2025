@@ -32,7 +32,7 @@ pub fn part_1_alt(input: &str) -> i32 {
     input
         .lines()
         .fold((0, vec![false; len]), |(mut splits, mut acc), l| {
-            for col in 0..acc.len() {
+            for col in 0..len {
                 match l.as_bytes()[col] {
                     b'S' => acc[col] = true,
                     b'^' => {
@@ -57,7 +57,7 @@ pub fn part_2(input: &str) -> u64 {
     input
         .lines()
         .fold(vec![0; len], |mut acc, l| {
-            for col in 0..acc.len() {
+            for col in 0..len {
                 match l.as_bytes()[col] {
                     b'S' => acc[col] = 1,
                     b'^' => {
@@ -66,7 +66,6 @@ pub fn part_2(input: &str) -> u64 {
                         acc[col + 1] += acc[col];
                         acc[col] = 0;
                     }
-                    b'.' => {}
                     _ => {}
                 }
             }
