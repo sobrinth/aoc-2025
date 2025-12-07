@@ -16,5 +16,5 @@ aoc_main::main! {
     day04:  parse => part_1, part_2;
     day05 => part_1, part_2_optimized;
     day06 => part_1, part_2;
-    day07 => part_1, part_2;
+    day07 => part_1, part_1_alt, part_2;
 }

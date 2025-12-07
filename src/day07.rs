@@ -27,6 +27,31 @@ pub fn part_1(input: &str) -> i32 {
         .0
 }
 
+pub fn part_1_alt(input: &str) -> i32 {
+    let len = input.lines().next().unwrap().len();
+    input
+        .lines()
+        .fold((0, vec![false; len]), |(mut splits, mut acc), l| {
+            for col in 0..acc.len() {
+                match l.as_bytes()[col] {
+                    b'S' => acc[col] = true,
+                    b'^' => {
+                        if acc[col] {
+                            acc[col] = false;
+                            acc[col - 1] = true;
+                            acc[col + 1 ] = true;
+                            splits += 1;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+
+            (splits, acc)
+        })
+        .0
+}
+
 pub fn part_2(input: &str) -> u64 {
     let len = input.lines().next().unwrap().len();
     input
