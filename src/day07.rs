@@ -27,8 +27,28 @@ pub fn part_1(input: &str) -> i32 {
         .0
 }
 
-pub fn part_2(_input: &str) -> i32 {
-    0
+pub fn part_2(input: &str) -> u64 {
+    let len = input.lines().next().unwrap().len();
+    input
+        .lines()
+        .fold(vec![0; len], |mut acc, l| {
+            for col in 0..acc.len() {
+                match l.as_bytes()[col] {
+                    b'S' => acc[col] = 1,
+                    b'^' => {
+                        // no out-of-bounds checking as we only ever get to the edges at the end
+                        acc[col - 1] += acc[col];
+                        acc[col + 1] += acc[col];
+                        acc[col] = 0;
+                    }
+                    b'.' => {}
+                    _ => {}
+                }
+            }
+            acc
+        })
+        .iter()
+        .sum()
 }
 
 #[cfg(test)]
@@ -59,8 +79,24 @@ mod tests {
     }
     #[test]
     fn test_part_2() {
-        let s = "input";
+        let s = ".......S.......
+...............
+.......^.......
+...............
+......^.^......
+...............
+.....^.^.^.....
+...............
+....^.^...^....
+...............
+...^.^...^.^...
+...............
+..^...^.....^..
+...............
+.^.^.^.^.^...^.
+...............
+";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(s), 40);
     }
 }
