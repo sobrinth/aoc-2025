@@ -1,21 +1,22 @@
 use itertools::Itertools;
 use std::collections::HashSet;
 
+type JunctionBox = [i64; 3];
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd)]
 struct Edge {
-    dist: i64,
+    weight: i64,
     i: usize,
     j: usize,
 }
 
-// Disjoint set union for Kruskal's algorithm
-struct UnionFind {
+struct Kruskal {
     parent: Vec<usize>,
     rank: Vec<usize>,
 }
 
-// based on the german wikipedia article for Kruskal's algorithm
-impl UnionFind {
+// Kruskal's algorithm for MST
+impl Kruskal {
     fn new(n: usize) -> Self {
         Self {
             parent: (0..n).collect_vec(),
@@ -28,7 +29,6 @@ impl UnionFind {
      **/
     fn find_root(&mut self, i: usize) -> usize {
         if self.parent[i] != i {
-            // path compression
             self.parent[i] = self.find_root(self.parent[i]);
         }
         self.parent[i]
@@ -39,9 +39,7 @@ impl UnionFind {
      * returns true if sets were merged, false if already in the same set
      **/
     fn union(&mut self, i: usize, j: usize) -> bool {
-        // find root of set i
         let parent_i = self.find_root(i);
-        // find root of set j
         let parent_j = self.find_root(j);
         if parent_i == parent_j {
             // already in the same set
@@ -50,7 +48,7 @@ impl UnionFind {
 
         // attach the smaller tree to the bigger tree
         if self.rank[parent_i] < self.rank[parent_j] {
-            // switch parent of set i and update the rank of set j
+            // switch parent of set i and update the rank of the set j
             self.parent[parent_i] = parent_j;
             self.rank[parent_j] += self.rank[parent_i];
         } else {
@@ -62,39 +60,63 @@ impl UnionFind {
     }
 }
 
-pub fn part_1(_input: &str) -> usize {
-    let points = _input
+fn map_junction_boxes(input: &str) -> Vec<JunctionBox> {
+    input
         .lines()
         .map(|l| {
             let xyz: Vec<i64> = l.split(',').map(|s| s.parse::<i64>().unwrap()).collect();
             [xyz[0], xyz[1], xyz[2]]
         })
-        .collect_vec();
+        .collect_vec()
+}
 
-    let edges = calc_edges_sorted(&points);
-    let num_points = points.len();
+fn calc_edges_sorted(boxes: &[JunctionBox]) -> Vec<Edge> {
+    let num_boxes = boxes.len();
+    let mut edges = Vec::new();
+    // compute the pairwise distance between points (euclidean).
+    // No sqrt() as it /should/ not be necessary just to sort
+    for i in 0..num_boxes {
+        for j in i + 1..num_boxes {
+            let dx = boxes[i][0] - boxes[j][0];
+            let dy = boxes[i][1] - boxes[j][1];
+            let dz = boxes[i][2] - boxes[j][2];
+            edges.push(Edge {
+                weight: dx * dx + dy * dy + dz * dz,
+                i,
+                j,
+            });
+        }
+    }
+    edges.sort_unstable_by(|a, b| a.weight.cmp(&b.weight));
+    edges
+}
 
-    let mut union_find = UnionFind::new(num_points);
+pub fn part_1(input: &str) -> usize {
+    let boxes = map_junction_boxes(input);
+    let edges = calc_edges_sorted(&boxes);
+    let num_boxes = boxes.len();
 
-    // Stupid workaround for the difference between testdata & real data...
+    let mut kruskal = Kruskal::new(num_boxes);
+
+    // Stupid workaround for the difference between test data and the real data...
     // The real problem calls for the 1000 smallest edges
-    let search_limit = if num_points == 20 {
+    let search_limit = if num_boxes == 20 {
         10
     } else {
         edges.len().min(1000)
     };
 
     edges.iter().take(search_limit).for_each(|e| {
-        union_find.union(e.i as usize, e.j as usize);
+        kruskal.union(e.i, e.j);
     });
 
     let mut ranks = Vec::new();
     let mut visited = HashSet::new();
 
-    for i in 0..num_points {
-        let root = union_find.find_root(i);
+    for i in 0..num_boxes {
+        let root = kruskal.find_root(i);
         if visited.insert(root) {
-            ranks.push(union_find.rank[root]);
+            ranks.push(kruskal.rank[root]);
         }
     }
 
@@ -104,29 +126,27 @@ pub fn part_1(_input: &str) -> usize {
     ranks[0] * ranks[1] * ranks[2]
 }
 
-pub fn part_2(_input: &str) -> i32 {
-    0
-}
+pub fn part_2(input: &str) -> i64 {
+    let boxes = map_junction_boxes(input);
+    let edges = calc_edges_sorted(&boxes);
+    let num_boxes = boxes.len();
 
-fn calc_edges_sorted(points: &[[i64; 3]]) -> Vec<Edge> {
-    let num_points = points.len();
-    let mut edges = Vec::new();
-    // compute the pairwise distance between points (euclidean).
-    // No sqrt() as it /should/ not be needed just to sort..
-    for i in 0..num_points {
-        for j in i + 1..num_points {
-            let dx = points[i][0] - points[j][0];
-            let dy = points[i][1] - points[j][1];
-            let dz = points[i][2] - points[j][2];
-            edges.push(Edge {
-                dist: dx * dx + dy * dy + dz * dz,
-                i,
-                j,
-            });
+    let mut kruskal = Kruskal::new(num_boxes);
+
+    let mut remaining_boxes = num_boxes;
+
+    for edge in edges {
+        // Try to union the boxes
+        if kruskal.union(edge.i, edge.j) {
+            // connection successful -> one less junction box to go
+            remaining_boxes -= 1;
+            if remaining_boxes == 1 {
+                // last connection that is still needed. Multiply the x component of the edge points
+                return boxes[edge.i][0] * boxes[edge.j][0];
+            }
         }
     }
-    edges.sort_unstable_by(|a, b| a.dist.cmp(&b.dist));
-    edges
+    unreachable!("oh, oh. I messed up")
 }
 
 #[cfg(test)]
@@ -183,6 +203,6 @@ mod tests {
 425,690,689
 ";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(s), 25272);
     }
 }
