@@ -39,7 +39,7 @@ pub fn part_1_alt(input: &str) -> i32 {
                         if acc[col] {
                             acc[col] = false;
                             acc[col - 1] = true;
-                            acc[col + 1 ] = true;
+                            acc[col + 1] = true;
                             splits += 1;
                         }
                     }
