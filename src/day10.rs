@@ -1,3 +1,4 @@
+use good_lp::{IntoAffineExpression, Solution, SolverModel, variables};
 use itertools::Itertools;
 use std::collections::{HashSet, VecDeque};
 
@@ -32,8 +33,35 @@ pub fn part_1(input: &str) -> u64 {
         .sum()
 }
 
-pub fn part_2(_input: &str) -> i32 {
-    0
+pub fn part_2(input: &str) -> u64 {
+    let machines = parse(input)
+        .iter()
+        .map(|(_, buttons, jolts)| {
+            let mut solver_vars = variables!();
+            let button_vars = (0..buttons.len())
+                .map(|_| solver_vars.add(good_lp::variable().min(0).integer()))
+                .collect_vec();
+
+            let mut machine_problem = good_lp::highs(
+                solver_vars.minimise(button_vars.iter().sum::<good_lp::Expression>()),
+            );
+            let mut expressions = vec![0.into_expression(); jolts.len()];
+            for i in 0..buttons.len() {
+                for &j in &buttons[i] {
+                    expressions[j as usize] += button_vars[i];
+                }
+            }
+
+            for (expr, &j) in expressions.into_iter().zip(jolts) {
+                machine_problem.add_constraint(expr.eq(j as f64));
+            }
+
+            let solution = machine_problem.solve().unwrap();
+            button_vars.iter().map(|&v| solution.value(v)).sum::<f64>() as u64
+        })
+        .sum();
+
+    machines
 }
 
 fn parse(input: &str) -> Vec<(String, Vec<Vec<u64>>, Vec<u64>)> {
@@ -84,6 +112,6 @@ mod tests {
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 ";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(s), 33);
     }
 }
