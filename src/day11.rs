@@ -5,8 +5,17 @@ pub fn part_1(input: &str) -> u64 {
     count_paths("you", "out", &graph, &mut HashMap::new())
 }
 
-pub fn part_2(_input: &str) -> i32 {
-    0
+pub fn part_2(input: &str) -> u64 {
+    let graph = parse(&input);
+    let svr_fft_dac_out = count_paths("svr", "fft", &graph, &mut HashMap::new())
+        * count_paths("fft", "dac", &graph, &mut HashMap::new())
+        * count_paths("dac", "out", &graph, &mut HashMap::new());
+
+    let svr_dac_fft_out = count_paths("svr", "dac", &graph, &mut HashMap::new())
+        * count_paths("dac", "fft", &graph, &mut HashMap::new())
+        * count_paths("fft", "out", &graph, &mut HashMap::new());
+
+    svr_dac_fft_out + svr_fft_dac_out
 }
 
 fn count_paths<'a>(
@@ -67,18 +76,20 @@ iii: out
     }
     #[test]
     fn test_part_2() {
-        let s = "aaa: you hhh
-you: bbb ccc
-bbb: ddd eee
-ccc: ddd eee fff
-ddd: ggg
-eee: out
-fff: out
+        let s = "svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
 ggg: out
-hhh: ccc fff iii
-iii: out
-";
+hhh: out";
 
-        assert_eq!(part_2(s), 0);
+        assert_eq!(part_2(s), 2);
     }
 }
