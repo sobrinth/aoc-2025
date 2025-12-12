@@ -24,7 +24,7 @@ aoc_main::main! {
     day07 => part_1, part_1_alt, part_2;
     day08 => part_1, part_2;
     day09 => part_1, part_2;
-    day10 => part_1, part_2;
+    day10 => part_1, part_2, part_2_manual;
     day11 => part_1, part_2;
     day12 => part_1 ,part_1_cursed_unsafe;
 }

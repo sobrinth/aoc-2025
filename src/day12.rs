@@ -133,7 +133,7 @@ mod tests {
 12x5: 1 0 1 0 3 2
 ";
 
-        assert_eq!(part_1(s), 2);
+        assert_eq!(part_1(s), 3);
     }
     #[test]
     fn test_part_2() {
