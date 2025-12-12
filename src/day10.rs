@@ -1,4 +1,3 @@
-use good_lp::{IntoAffineExpression, Solution, SolverModel, variables};
 use itertools::Itertools;
 use std::collections::{HashSet, VecDeque};
 
@@ -32,37 +31,37 @@ pub fn part_1(input: &str) -> u64 {
         })
         .sum()
 }
-
-pub fn part_2(input: &str) -> u64 {
-    let machines = parse(input)
-        .iter()
-        .map(|(_, buttons, jolts)| {
-            let mut solver_vars = variables!();
-            let button_vars = (0..buttons.len())
-                .map(|_| solver_vars.add(good_lp::variable().min(0).integer()))
-                .collect_vec();
-
-            let mut machine_problem = good_lp::highs(
-                solver_vars.minimise(button_vars.iter().sum::<good_lp::Expression>()),
-            );
-            let mut expressions = vec![0.into_expression(); jolts.len()];
-            for i in 0..buttons.len() {
-                for &j in &buttons[i] {
-                    expressions[j as usize] += button_vars[i];
-                }
-            }
-
-            for (expr, &j) in expressions.into_iter().zip(jolts) {
-                machine_problem.add_constraint(expr.eq(j as f64));
-            }
-
-            let solution = machine_problem.solve().unwrap();
-            button_vars.iter().map(|&v| solution.value(v)).sum::<f64>() as u64
-        })
-        .sum();
-
-    machines
-}
+// Commented out to be able to remove the dependencies on good_lp and the compile hit
+// pub fn part_2(input: &str) -> u64 {
+//     let machines = parse(input)
+//         .iter()
+//         .map(|(_, buttons, jolts)| {
+//             let mut solver_vars = variables!();
+//             let button_vars = (0..buttons.len())
+//                 .map(|_| solver_vars.add(good_lp::variable().min(0).integer()))
+//                 .collect_vec();
+//
+//             let mut machine_problem = good_lp::highs(
+//                 solver_vars.minimise(button_vars.iter().sum::<good_lp::Expression>()),
+//             );
+//             let mut expressions = vec![0.into_expression(); jolts.len()];
+//             for i in 0..buttons.len() {
+//                 for &j in &buttons[i] {
+//                     expressions[j as usize] += button_vars[i];
+//                 }
+//             }
+//
+//             for (expr, &j) in expressions.into_iter().zip(jolts) {
+//                 machine_problem.add_constraint(expr.eq(j as f64));
+//             }
+//
+//             let solution = machine_problem.solve().unwrap();
+//             button_vars.iter().map(|&v| solution.value(v)).sum::<f64>() as u64
+//         })
+//         .sum();
+//
+//     machines
+// }
 
 fn parse(input: &str) -> Vec<(String, Vec<Vec<u64>>, Vec<u64>)> {
     input
@@ -292,15 +291,17 @@ mod tests {
 
         assert_eq!(part_1(s), 7);
     }
-    #[test]
-    fn test_part_2() {
-        let s = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
-[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-";
 
-        assert_eq!(part_2(s), 33);
-    }
+    // See the comment above :)
+//     #[test]
+//     fn test_part_2() {
+//         let s = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+// [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+// [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
+// ";
+//
+//         assert_eq!(part_2(s), 33);
+//     }
 
     #[test]
     fn test_part_2_manual() {
