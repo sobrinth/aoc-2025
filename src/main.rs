@@ -10,6 +10,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 mod shared;
 
 aoc_main::main! {
@@ -25,4 +26,5 @@ aoc_main::main! {
     day09 => part_1, part_2;
     day10 => part_1, part_2;
     day11 => part_1, part_2;
+    day12 => part_1;
 }
